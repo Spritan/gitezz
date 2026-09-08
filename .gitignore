@@ -1,0 +1,6 @@
+/gogit
+/gitezz
+*.exe
+*.AppImage
+fyne-cross/
+.DS_Store
