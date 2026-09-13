@@ -7,3 +7,4 @@ fyne-cross/
 /cmd/main/gitezz.app
 /cmd/main/dmg-root/
 /cmd/main/*.dmg
+*.dmg
