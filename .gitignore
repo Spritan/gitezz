@@ -4,3 +4,4 @@
 *.AppImage
 fyne-cross/
 .DS_Store
+/cmd/main/gitezz.app
