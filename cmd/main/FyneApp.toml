@@ -2,7 +2,7 @@
 Name = "gitezz"
 ID = "com.github.spritan.gitezz"
 Version = "0.1.0"
-Build = 1
+Build = 2
 
 [Migrations]
 fyneDo = true
