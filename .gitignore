@@ -5,3 +5,5 @@
 fyne-cross/
 .DS_Store
 /cmd/main/gitezz.app
+/cmd/main/dmg-root/
+/cmd/main/*.dmg

@@ -25,6 +25,44 @@ go build -o gitezz ./cmd/main
 ./gitezz
 ```
 
+### macOS app & DMG
+
+Requires [Fyne CLI](https://docs.fyne.io/started/packaging/) and Xcode Command Line Tools. From the repo root:
+
+```bash
+go install fyne.io/tools/cmd/fyne@latest
+
+cd cmd/main
+fyne package -os darwin
+```
+
+That creates `gitezz.app` (double-clickable). To wrap it in a DMG with a drag-to-Applications layout:
+
+```bash
+cd cmd/main
+
+rm -rf dmg-root
+mkdir dmg-root
+cp -R gitezz.app dmg-root/
+ln -s /Applications dmg-root/Applications
+
+hdiutil create \
+  -volname "gitezz" \
+  -srcfolder dmg-root \
+  -ov -format UDZO \
+  gitezz-macos-arm64.dmg
+
+rm -rf dmg-root
+```
+
+Open the DMG and drag **gitezz** into **Applications**.
+
+Notes:
+
+- The default build is for your Mac’s architecture (Apple Silicon → `arm64`). For Intel Macs, cross-build or produce a universal binary separately.
+- Unsigned / adhoc-signed apps may be blocked by Gatekeeper. Recipients can right-click → **Open**, or run `xattr -cr gitezz.app` after copying out of the DMG.
+- Optional: place an `Icon.png` (e.g. 1024×1024) in `cmd/main` so `fyne package` embeds an app icon (`FyneApp.toml` already sets name, ID, and version).
+
 Optional debug logging:
 
 ```bash
