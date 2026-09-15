@@ -1,9 +1,10 @@
 module github.com/Spritan/gitezz
 
-go 1.26.6
+go 1.25.0
 
 require (
 	fyne.io/fyne/v2 v2.8.1
+	github.com/alexiusacademia/fynesimplechart v0.2.1
 	github.com/go-git/go-git/v5 v5.19.2
 	github.com/lmittmann/tint v1.2.0
 	github.com/ncruces/zenity v0.10.15

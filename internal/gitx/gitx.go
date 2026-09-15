@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
@@ -539,8 +540,12 @@ func CommitAll(path, message string) (string, error) {
 }
 
 type LogEntry struct {
-	Hash    string
-	Subject string
+	Hash     string
+	Subject  string
+	Author   string
+	When     time.Time
+	Parents  []string // short hashes
+	IsMerge  bool
 }
 
 func Log(path string, n int) ([]LogEntry, error) {
@@ -570,9 +575,30 @@ func Log(path string, n int) ([]LogEntry, error) {
 		if i := strings.IndexByte(sub, '\n'); i >= 0 {
 			sub = sub[:i]
 		}
+		author := ""
+		when := time.Time{}
+		if c.Author.Name != "" {
+			author = c.Author.Name
+			when = c.Author.When
+		} else if c.Committer.Name != "" {
+			author = c.Committer.Name
+			when = c.Committer.When
+		}
+		parents := make([]string, 0, len(c.ParentHashes))
+		for _, h := range c.ParentHashes {
+			s := h.String()
+			if len(s) >= 7 {
+				s = s[:7]
+			}
+			parents = append(parents, s)
+		}
 		entries = append(entries, LogEntry{
 			Hash:    c.Hash.String()[:7],
 			Subject: sub,
+			Author:  author,
+			When:    when,
+			Parents: parents,
+			IsMerge: len(parents) > 1,
 		})
 	}
 	return entries, nil

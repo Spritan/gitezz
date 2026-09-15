@@ -138,10 +138,22 @@ func buildDetailPanel() fyne.CanvasObject {
 		container.NewVScroll(detailChanges),
 	)
 
+	detailHistoryBody = container.NewStack(container.NewVScroll(detailHistory))
+
 	historySection := container.NewBorder(
-		widget.NewLabelWithStyle("History", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+		container.NewBorder(
+			nil, nil,
+			widget.NewLabelWithStyle("History", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewCheck("Graph", func(on bool) {
+				detailHistoryGraph = on
+				if r, ok := activeRepo(); ok {
+					reloadDetailHistory(r)
+				}
+			}),
+			nil,
+		),
 		nil, nil, nil,
-		container.NewVScroll(detailHistory),
+		detailHistoryBody,
 	)
 
 	body := container.NewVSplit(
@@ -218,20 +230,25 @@ func reloadDetailPanel(r Repo) {
 	detailChanges.Refresh()
 
 	detailHistory.Objects = nil
-	logs, err := gitx.Log(r.Path, 30)
-	if err != nil {
-		detailHistory.Add(widget.NewLabel("Failed to load history"))
-	} else if len(logs) == 0 {
-		detailHistory.Add(widget.NewLabel("No commits"))
-	} else {
-		for _, e := range logs {
-			lbl := widget.NewLabel(fmt.Sprintf("%s  %s", e.Hash, e.Subject))
-			lbl.TextStyle = fyne.TextStyle{Monospace: true}
-			lbl.Truncation = fyne.TextTruncateEllipsis
-			detailHistory.Add(lbl)
-		}
+	reloadDetailHistory(r)
+}
+
+func reloadDetailHistory(r Repo) {
+	if detailHistory == nil {
+		return
 	}
-	detailHistory.Refresh()
+	logs, err := gitx.Log(r.Path, 40)
+	if err != nil {
+		detailHistory.Objects = nil
+		detailHistory.Add(widget.NewLabel("Failed to load history"))
+		detailHistory.Refresh()
+		if detailHistoryBody != nil {
+			detailHistoryBody.Objects = []fyne.CanvasObject{container.NewVScroll(detailHistory)}
+			detailHistoryBody.Refresh()
+		}
+		return
+	}
+	renderDetailHistory(logs)
 }
 
 func activeRepo() (Repo, bool) {
