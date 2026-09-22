@@ -4,11 +4,10 @@ Desktop Git multi-repo manager built with [Fyne](https://fyne.io/). Point it at 
 
 ## Requirements
 
-- Go 1.22+ (tested with Go 1.26)
+- Go 1.22+ (module targets Go 1.25)
 - Linux / macOS / Windows
-- System `git` (used for **stash** only)
+- System `git` (used for **stash** and `git credential`; bundled inside the Flatpak build)
 - SSH access to your remotes (agent or `~/.ssh/id_*` keys), or HTTPS credentials via `git credential`
-- [zenity](https://github.com/ncruces/zenity)-compatible dialogs for the folder picker (native on Linux; zenity Go package handles Windows/macOS)
 
 ## Install & run
 
@@ -23,6 +22,31 @@ Or build a binary:
 ```bash
 go build -o gitezz ./cmd/main
 ./gitezz
+```
+
+### Linux Flatpak
+
+Requires `flatpak` and `flatpak-builder`. The Flatpak bundles `git`, uses the host native folder picker (`kdialog`/`zenity` via `flatpak-spawn`), and needs home + SSH access for repos and remotes.
+
+```bash
+# one-time runtimes
+flatpak install -y --user flathub \
+  org.freedesktop.Platform//25.08 \
+  org.freedesktop.Sdk//25.08 \
+  org.freedesktop.Sdk.Extension.golang//25.08
+
+# build and install for the current user
+cd flatpak
+flatpak-builder --user --install --force-clean build-dir com.github.spritan.gitezz.yml
+flatpak run com.github.spritan.gitezz
+```
+
+Optional single-file bundle to share:
+
+```bash
+cd flatpak
+flatpak-builder --repo=repo --force-clean build-dir com.github.spritan.gitezz.yml
+flatpak build-bundle repo gitezz.flatpak com.github.spritan.gitezz
 ```
 
 ### macOS app & DMG
@@ -87,7 +111,7 @@ GITEZZ_DEBUG=1 go run ./cmd/main
 
 - Remotes honor your git `url.*.insteadOf` rules (e.g. HTTPS → SSH).
 - Force-push is only available from the conflict / push-rejected dialog after confirmation.
-- Stash still shells out to system `git stash`.
+- Stash still shells out to system `git stash` (bundled `git` in Flatpak).
 
 ## License
 

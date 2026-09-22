@@ -16,10 +16,10 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/lmittmann/tint"
-	"github.com/ncruces/zenity"
 
 	"github.com/Spritan/gitezz/internal/gitx"
 )
@@ -899,40 +899,61 @@ func toggleSelectVisible(on bool) {
 }
 
 func selectFolder() {
-	go func() {
-		opts := []zenity.Option{
-			zenity.Title("Select folder of Git repositories"),
-			zenity.Directory(),
-		}
-		if rootPath != "" {
-			opts = append(opts, zenity.Filename(rootPath))
-		}
-		path, err := zenity.SelectFile(opts...)
-		if err != nil {
-			if err == zenity.ErrCanceled {
+	if runningInFlatpak() {
+		go func() {
+			path, err := pickFolderHostDialog(rootPath)
+			if err != nil {
+				slog.Error("folder dialog error", "err", err)
+				fyne.Do(func() {
+					setFooter("Folder picker failed: " + err.Error())
+				})
+				return
+			}
+			if path == "" {
 				slog.Info("folder dialog cancelled")
 				return
 			}
-			slog.Error("folder dialog error", "err", err)
 			fyne.Do(func() {
-				setFooter("Folder picker failed: " + err.Error())
+				rootPath = path
+				slog.Info("folder selected", "path", rootPath)
+				if folderLabel != nil {
+					folderLabel.SetText(rootPath)
+				}
+				refreshRepos()
 			})
+		}()
+		return
+	}
+
+	d := dialog.NewFolderOpen(func(uri fyne.ListableURI, err error) {
+		if err != nil {
+			slog.Error("folder dialog error", "err", err)
+			setFooter("Folder picker failed: " + err.Error())
 			return
 		}
+		if uri == nil {
+			slog.Info("folder dialog cancelled")
+			return
+		}
+		path := uri.Path()
 		if strings.TrimSpace(path) == "" {
 			slog.Info("folder dialog cancelled")
 			return
 		}
-
-		fyne.Do(func() {
-			rootPath = path
-			slog.Info("folder selected", "path", rootPath)
-			if folderLabel != nil {
-				folderLabel.SetText(rootPath)
-			}
-			refreshRepos()
-		})
-	}()
+		rootPath = path
+		slog.Info("folder selected", "path", rootPath)
+		if folderLabel != nil {
+			folderLabel.SetText(rootPath)
+		}
+		refreshRepos()
+	}, appWindow)
+	if rootPath != "" {
+		if u, err := storage.ListerForURI(storage.NewFileURI(rootPath)); err == nil {
+			d.SetLocation(u)
+		}
+	}
+	d.SetConfirmText("Select")
+	d.Show()
 }
 
 func tableCard(inner fyne.CanvasObject) fyne.CanvasObject {

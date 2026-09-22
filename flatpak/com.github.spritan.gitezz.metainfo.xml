@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.spritan.gitezz</id>
+  <name>gitezz</name>
+  <summary>Desktop Git multi-repo manager</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="com.github.spritan">
+    <name>Spritan</name>
+  </developer>
+  <description>
+    <p>
+      gitezz is a desktop Git multi-repo manager. Point it at a folder of
+      repositories and pull, push, commit, or switch branches from one window.
+    </p>
+    <p>
+      Features include bulk pull/push, a detail panel for staging and history,
+      stash support, and SSH or HTTPS remote authentication using your existing
+      Git credentials and SSH keys.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.github.spritan.gitezz.desktop</launchable>
+  <url type="homepage">https://github.com/Spritan/gitezz</url>
+  <url type="bugtracker">https://github.com/Spritan/gitezz/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2025-09-09"/>
+  </releases>
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </recommends>
+</component>

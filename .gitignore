@@ -8,3 +8,7 @@ fyne-cross/
 /cmd/main/dmg-root/
 /cmd/main/*.dmg
 *.dmg
+.flatpak-builder/
+/flatpak/build-dir/
+/flatpak/repo/
+*.flatpak

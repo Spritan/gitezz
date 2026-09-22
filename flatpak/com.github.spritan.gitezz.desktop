@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=gitezz
+GenericName=Git Multi-Repo Manager
+Comment=Manage multiple Git repositories from one desktop window
+Exec=gitezz
+Icon=com.github.spritan.gitezz
+Terminal=false
+Type=Application
+Categories=Development;RevisionControl;
+Keywords=git;repository;vcs;
+StartupNotify=true
